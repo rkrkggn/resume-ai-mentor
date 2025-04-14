@@ -1,7 +1,7 @@
 
 import { useResume } from "@/context/ResumeContext";
 import { Card, CardContent } from "@/components/ui/card";
-import { Radio, RadioGroup } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import ModernTemplate from "./templates/ModernTemplate";
 import ClassicTemplate from "./templates/ClassicTemplate";
@@ -39,7 +39,7 @@ const TemplateSelector = () => {
       >
         <div>
           <div className="flex items-center space-x-2 mb-2">
-            <Radio id="modern" value="modern" />
+            <RadioGroupItem id="modern" value="modern" />
             <Label htmlFor="modern">Modern</Label>
           </div>
           <Card className="overflow-hidden h-40 cursor-pointer hover:border-resume-primary transition-colors"
@@ -54,7 +54,7 @@ const TemplateSelector = () => {
         
         <div>
           <div className="flex items-center space-x-2 mb-2">
-            <Radio id="classic" value="classic" />
+            <RadioGroupItem id="classic" value="classic" />
             <Label htmlFor="classic">Classic</Label>
           </div>
           <Card className="overflow-hidden h-40 cursor-pointer hover:border-resume-primary transition-colors"
@@ -69,7 +69,7 @@ const TemplateSelector = () => {
         
         <div>
           <div className="flex items-center space-x-2 mb-2">
-            <Radio id="creative" value="creative" />
+            <RadioGroupItem id="creative" value="creative" />
             <Label htmlFor="creative">Creative</Label>
           </div>
           <Card className="overflow-hidden h-40 cursor-pointer hover:border-resume-primary transition-colors"
