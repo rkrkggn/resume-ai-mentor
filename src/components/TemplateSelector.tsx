@@ -25,87 +25,129 @@ const TemplateSelector = () => {
       state: resumeData.personalInfo.state || "CA",
       zipCode: resumeData.personalInfo.zipCode || "94103",
       professionalSummary: resumeData.personalInfo.professionalSummary || 
-        "Experienced software engineer with a passion for building innovative web applications."
-    }
+        "Experienced software engineer with a passion for building innovative web applications and solving complex problems. Strong in frontend and backend development with expertise in React, Node.js, and cloud technologies."
+    },
+    experience: resumeData.experience.length ? resumeData.experience : [
+      {
+        company: "Tech Innovations Inc.",
+        position: "Senior Software Engineer",
+        startDate: "2020-01",
+        endDate: "Present",
+        location: "San Francisco, CA",
+        description: "Led development of cloud-based solutions for enterprise clients. Implemented microservice architecture using Node.js and Docker. Reduced system latency by 40%."
+      },
+      {
+        company: "CodeCraft Solutions",
+        position: "Software Developer",
+        startDate: "2017-06",
+        endDate: "2019-12",
+        location: "Boston, MA",
+        description: "Developed full-stack web applications using React, Redux, and Express. Collaborated with design team to implement responsive UI components."
+      }
+    ],
+    education: resumeData.education.length ? resumeData.education : [
+      {
+        school: "Massachusetts Institute of Technology",
+        degree: "Master of Science",
+        fieldOfStudy: "Computer Science",
+        startDate: "2015-09",
+        endDate: "2017-05",
+        description: "Focus on artificial intelligence and distributed systems. Published research on machine learning applications."
+      },
+      {
+        school: "University of California, Berkeley",
+        degree: "Bachelor of Science",
+        fieldOfStudy: "Computer Engineering",
+        startDate: "2011-09",
+        endDate: "2015-05",
+        description: "Graduated with honors. Active member of the Robotics Club."
+      }
+    ],
+    skills: resumeData.skills.length ? resumeData.skills : [
+      { name: "JavaScript", level: 5 },
+      { name: "React", level: 5 },
+      { name: "Node.js", level: 4 },
+      { name: "TypeScript", level: 4 },
+      { name: "Docker", level: 3 },
+      { name: "AWS", level: 3 },
+      { name: "MongoDB", level: 4 },
+      { name: "GraphQL", level: 3 }
+    ]
   };
+  
+  const templates = [
+    {
+      id: "modern",
+      name: "Modern",
+      description: "Clean and professional with a touch of color",
+      Component: ModernTemplate
+    },
+    {
+      id: "classic",
+      name: "Classic",
+      description: "Traditional layout with elegant typography",
+      Component: ClassicTemplate
+    },
+    {
+      id: "creative",
+      name: "Creative",
+      description: "Stand out with a unique design",
+      Component: CreativeTemplate
+    }
+  ];
   
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold">Choose a Template</h2>
+      <h2 className="text-xl font-bold flex items-center">
+        <span className="bg-resume-primary/10 text-resume-primary rounded-full p-1 mr-2">
+          <CheckCircle2 className="h-5 w-5" />
+        </span>
+        Choose a Template
+      </h2>
       
       <RadioGroup
         value={selectedTemplate}
         onValueChange={(value) => setSelectedTemplate(value as "modern" | "classic" | "creative")}
-        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
+        className="grid grid-cols-1 sm:grid-cols-3 gap-6"
       >
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <RadioGroupItem id="modern" value="modern" />
-            <Label htmlFor="modern">Modern</Label>
+        {templates.map((template) => (
+          <div key={template.id} className="space-y-2">
+            <div 
+              className={`
+                border rounded-lg p-3 transition-all cursor-pointer
+                ${selectedTemplate === template.id 
+                  ? "bg-resume-primary/5 border-resume-primary" 
+                  : "hover:border-resume-primary/50 border-transparent"}
+              `}
+              onClick={() => setSelectedTemplate(template.id as "modern" | "classic" | "creative")}
+            >
+              <div className="flex items-center space-x-2 mb-2">
+                <RadioGroupItem id={template.id} value={template.id} className="text-resume-primary" />
+                <Label htmlFor={template.id} className="font-medium cursor-pointer">
+                  {template.name}
+                </Label>
+                {selectedTemplate === template.id && (
+                  <span className="ml-auto text-resume-primary">
+                    <CheckCircle2 className="h-4 w-4" />
+                  </span>
+                )}
+              </div>
+              
+              <p className="text-sm text-gray-500 mb-3">{template.description}</p>
+              
+              <Card 
+                className={`overflow-hidden h-48 relative transition-all duration-200 border-0 shadow-sm
+                ${selectedTemplate === template.id ? "ring-2 ring-resume-primary" : ""}`}
+              >
+                <CardContent className="p-0">
+                  <div className="scale-[0.25] origin-top-left h-[400%] w-[400%] pointer-events-none">
+                    <template.Component data={previewData} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-          <Card 
-            className={`overflow-hidden h-40 cursor-pointer relative transition-all duration-200 
-            ${selectedTemplate === "modern" ? "ring-2 ring-resume-primary" : "hover:border-resume-primary"}`}
-            onClick={() => setSelectedTemplate("modern")}
-          >
-            {selectedTemplate === "modern" && (
-              <div className="absolute top-2 right-2 z-10 text-resume-primary">
-                <CheckCircle2 className="h-6 w-6" />
-              </div>
-            )}
-            <CardContent className="p-0">
-              <div className="scale-[0.25] origin-top-left h-[400%] w-[400%] pointer-events-none">
-                <ModernTemplate data={previewData} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <RadioGroupItem id="classic" value="classic" />
-            <Label htmlFor="classic">Classic</Label>
-          </div>
-          <Card 
-            className={`overflow-hidden h-40 cursor-pointer relative transition-all duration-200 
-            ${selectedTemplate === "classic" ? "ring-2 ring-resume-primary" : "hover:border-resume-primary"}`}
-            onClick={() => setSelectedTemplate("classic")}
-          >
-            {selectedTemplate === "classic" && (
-              <div className="absolute top-2 right-2 z-10 text-resume-primary">
-                <CheckCircle2 className="h-6 w-6" />
-              </div>
-            )}
-            <CardContent className="p-0">
-              <div className="scale-[0.25] origin-top-left h-[400%] w-[400%] pointer-events-none">
-                <ClassicTemplate data={previewData} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <RadioGroupItem id="creative" value="creative" />
-            <Label htmlFor="creative">Creative</Label>
-          </div>
-          <Card 
-            className={`overflow-hidden h-40 cursor-pointer relative transition-all duration-200 
-            ${selectedTemplate === "creative" ? "ring-2 ring-resume-primary" : "hover:border-resume-primary"}`}
-            onClick={() => setSelectedTemplate("creative")}
-          >
-            {selectedTemplate === "creative" && (
-              <div className="absolute top-2 right-2 z-10 text-resume-primary">
-                <CheckCircle2 className="h-6 w-6" />
-              </div>
-            )}
-            <CardContent className="p-0">
-              <div className="scale-[0.25] origin-top-left h-[400%] w-[400%] pointer-events-none">
-                <CreativeTemplate data={previewData} />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        ))}
       </RadioGroup>
     </div>
   );

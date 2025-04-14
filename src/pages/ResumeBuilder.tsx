@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Download, Save, FileText, User, BookOpen, Lightbulb, FileCheck, CheckCircle2 } from "lucide-react";
+import { Loader2, Download, Save, FileText, User, BookOpen, Lightbulb, FileCheck, CheckCircle2, Rocket } from "lucide-react";
 import { useResume } from "@/context/ResumeContext";
 import { useToast } from "@/components/ui/use-toast";
 import { saveResume } from "@/services/resumeService";
@@ -88,16 +88,24 @@ const ResumeBuilder = () => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
-        unit: 'px',
+        unit: 'mm',
         format: 'a4',
       });
       
+      // A4 dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const ratio = pdfWidth / canvas.width;
-      const imgHeight = canvas.height * ratio;
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+      // Calculate proper scaling to fit on A4
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      
+      // Center the image
+      const xPos = (pdfWidth - imgWidth * ratio) / 2;
+      const yPos = 0;
+      
+      pdf.addImage(imgData, 'PNG', xPos, yPos, imgWidth * ratio, imgHeight * ratio);
       
       // Generate a good file name
       const lastName = resumeData.personalInfo.lastName || "Resume";
@@ -142,34 +150,40 @@ const ResumeBuilder = () => {
       <div className="container py-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Resume Builder</h1>
+            <h1 className="text-3xl font-bold mb-2 flex items-center">
+              <Rocket className="h-7 w-7 text-resume-primary mr-2" />
+              Resume Builder
+            </h1>
             <p className="text-gray-500">
-              Fill out the form, choose a template, and get AI feedback
+              Create a professional resume with Resume Rocket
             </p>
           </div>
           
           <div className="flex space-x-2 mt-4 md:mt-0">
             <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="bg-resume-primary hover:bg-resume-accent">
                   <Save className="h-4 w-4 mr-2" />
                   Save Resume
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Save Resume</DialogTitle>
+                  <DialogTitle className="flex items-center">
+                    <Save className="h-5 w-5 mr-2 text-resume-primary" />
+                    Save Resume
+                  </DialogTitle>
                   <DialogDescription>
                     Give your resume a name to save it to your account.
                   </DialogDescription>
                 </DialogHeader>
                 
                 {saveSuccess ? (
-                  <div className="py-6 flex flex-col items-center justify-center text-center">
-                    <div className="bg-green-100 rounded-full p-3 mb-4">
-                      <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  <div className="py-8 flex flex-col items-center justify-center text-center">
+                    <div className="bg-green-100 rounded-full p-4 mb-4">
+                      <CheckCircle2 className="h-10 w-10 text-green-600" />
                     </div>
-                    <h3 className="text-lg font-medium mb-2">Resume Saved!</h3>
+                    <h3 className="text-xl font-medium mb-2">Resume Saved!</h3>
                     <p className="text-gray-500">Redirecting to your dashboard...</p>
                   </div>
                 ) : (
@@ -189,7 +203,7 @@ const ResumeBuilder = () => {
                       <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
                         Cancel
                       </Button>
-                      <Button onClick={handleSaveResume} disabled={saving}>
+                      <Button onClick={handleSaveResume} disabled={saving} className="bg-resume-primary hover:bg-resume-accent">
                         {saving ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -296,6 +310,7 @@ const ResumeBuilder = () => {
                   }
                 }}
                 disabled={activeTab === "template"}
+                className="bg-resume-primary hover:bg-resume-accent"
               >
                 Next
               </Button>
@@ -307,13 +322,15 @@ const ResumeBuilder = () => {
           {/* Right column - Preview */}
           <div className="md:col-span-5">
             <div className="sticky top-6">
-              <Card className="p-4 mb-4">
-                <h2 className="text-lg font-semibold mb-2 flex items-center">
+              <Card className="p-4 mb-4 border-0 shadow-md">
+                <h2 className="text-lg font-semibold mb-4 flex items-center">
                   <FileText className="h-5 w-5 mr-2 text-resume-primary" />
                   Resume Preview
                 </h2>
-                <div className="scale-[0.7] origin-top-left" ref={resumeRef}>
-                  {renderTemplate()}
+                <div className="bg-white p-4 rounded-lg border border-gray-100">
+                  <div className="w-full shadow-lg border border-gray-100 rounded overflow-hidden" ref={resumeRef}>
+                    {renderTemplate()}
+                  </div>
                 </div>
               </Card>
             </div>
