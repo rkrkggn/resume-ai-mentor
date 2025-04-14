@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import ModernTemplate from "./templates/ModernTemplate";
 import ClassicTemplate from "./templates/ClassicTemplate";
 import CreativeTemplate from "./templates/CreativeTemplate";
+import { CheckCircle2 } from "lucide-react";
 
 const TemplateSelector = () => {
   const { resumeData, selectedTemplate, setSelectedTemplate } = useResume();
@@ -42,8 +43,16 @@ const TemplateSelector = () => {
             <RadioGroupItem id="modern" value="modern" />
             <Label htmlFor="modern">Modern</Label>
           </div>
-          <Card className="overflow-hidden h-40 cursor-pointer hover:border-resume-primary transition-colors"
-              onClick={() => setSelectedTemplate("modern")}>
+          <Card 
+            className={`overflow-hidden h-40 cursor-pointer relative transition-all duration-200 
+            ${selectedTemplate === "modern" ? "ring-2 ring-resume-primary" : "hover:border-resume-primary"}`}
+            onClick={() => setSelectedTemplate("modern")}
+          >
+            {selectedTemplate === "modern" && (
+              <div className="absolute top-2 right-2 z-10 text-resume-primary">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+            )}
             <CardContent className="p-0">
               <div className="scale-[0.25] origin-top-left h-[400%] w-[400%] pointer-events-none">
                 <ModernTemplate data={previewData} />
@@ -57,8 +66,16 @@ const TemplateSelector = () => {
             <RadioGroupItem id="classic" value="classic" />
             <Label htmlFor="classic">Classic</Label>
           </div>
-          <Card className="overflow-hidden h-40 cursor-pointer hover:border-resume-primary transition-colors"
-              onClick={() => setSelectedTemplate("classic")}>
+          <Card 
+            className={`overflow-hidden h-40 cursor-pointer relative transition-all duration-200 
+            ${selectedTemplate === "classic" ? "ring-2 ring-resume-primary" : "hover:border-resume-primary"}`}
+            onClick={() => setSelectedTemplate("classic")}
+          >
+            {selectedTemplate === "classic" && (
+              <div className="absolute top-2 right-2 z-10 text-resume-primary">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+            )}
             <CardContent className="p-0">
               <div className="scale-[0.25] origin-top-left h-[400%] w-[400%] pointer-events-none">
                 <ClassicTemplate data={previewData} />
@@ -72,8 +89,16 @@ const TemplateSelector = () => {
             <RadioGroupItem id="creative" value="creative" />
             <Label htmlFor="creative">Creative</Label>
           </div>
-          <Card className="overflow-hidden h-40 cursor-pointer hover:border-resume-primary transition-colors"
-              onClick={() => setSelectedTemplate("creative")}>
+          <Card 
+            className={`overflow-hidden h-40 cursor-pointer relative transition-all duration-200 
+            ${selectedTemplate === "creative" ? "ring-2 ring-resume-primary" : "hover:border-resume-primary"}`}
+            onClick={() => setSelectedTemplate("creative")}
+          >
+            {selectedTemplate === "creative" && (
+              <div className="absolute top-2 right-2 z-10 text-resume-primary">
+                <CheckCircle2 className="h-6 w-6" />
+              </div>
+            )}
             <CardContent className="p-0">
               <div className="scale-[0.25] origin-top-left h-[400%] w-[400%] pointer-events-none">
                 <CreativeTemplate data={previewData} />

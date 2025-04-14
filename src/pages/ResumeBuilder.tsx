@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,12 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Download, Save, FileText, User, BookOpen, Lightbulb, Sparkles } from "lucide-react";
+import { Loader2, Download, Save, FileText, User, BookOpen, Lightbulb, FileCheck, CheckCircle2 } from "lucide-react";
 import { useResume } from "@/context/ResumeContext";
 import { useToast } from "@/components/ui/use-toast";
 import { saveResume } from "@/services/resumeService";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 import PersonalInfoForm from "@/components/forms/PersonalInfoForm";
 import ExperienceForm from "@/components/forms/ExperienceForm";
@@ -28,7 +30,10 @@ const ResumeBuilder = () => {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [resumeName, setResumeName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   
+  const resumeRef = useRef<HTMLDivElement>(null);
   const { resumeData, selectedTemplate } = useResume();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -47,8 +52,12 @@ const ResumeBuilder = () => {
     
     try {
       await saveResume(resumeName, resumeData, selectedTemplate);
-      setSaveDialogOpen(false);
-      navigate("/dashboard");
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveDialogOpen(false);
+        setSaveSuccess(false);
+        navigate("/dashboard");
+      }, 1500);
     } catch (error) {
       if (error instanceof Error) {
         toast({
@@ -59,6 +68,57 @@ const ResumeBuilder = () => {
       }
     } finally {
       setSaving(false);
+    }
+  };
+  
+  const handleDownloadPDF = async () => {
+    if (!resumeRef.current) return;
+    
+    setDownloading(true);
+    
+    try {
+      const resumeElement = resumeRef.current;
+      const canvas = await html2canvas(resumeElement, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: 'a4',
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const ratio = pdfWidth / canvas.width;
+      const imgHeight = canvas.height * ratio;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+      
+      // Generate a good file name
+      const lastName = resumeData.personalInfo.lastName || "Resume";
+      const firstName = resumeData.personalInfo.firstName || "";
+      const fileName = `${firstName}_${lastName}_Resume.pdf`;
+      
+      pdf.save(fileName);
+      
+      toast({
+        title: "Success",
+        description: "Resume downloaded successfully",
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Error",
+        description: "Failed to download resume. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDownloading(false);
     }
   };
   
@@ -103,41 +163,63 @@ const ResumeBuilder = () => {
                     Give your resume a name to save it to your account.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="resumeName">Resume Name</Label>
-                    <Input
-                      id="resumeName"
-                      placeholder="My Professional Resume"
-                      value={resumeName}
-                      onChange={(e) => setResumeName(e.target.value)}
-                    />
+                
+                {saveSuccess ? (
+                  <div className="py-6 flex flex-col items-center justify-center text-center">
+                    <div className="bg-green-100 rounded-full p-3 mb-4">
+                      <CheckCircle2 className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-lg font-medium mb-2">Resume Saved!</h3>
+                    <p className="text-gray-500">Redirecting to your dashboard...</p>
                   </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSaveResume} disabled={saving}>
-                    {saving ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Save
-                      </>
-                    )}
-                  </Button>
-                </DialogFooter>
+                ) : (
+                  <>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="resumeName">Resume Name</Label>
+                        <Input
+                          id="resumeName"
+                          placeholder="My Professional Resume"
+                          value={resumeName}
+                          onChange={(e) => setResumeName(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setSaveDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSaveResume} disabled={saving}>
+                        {saving ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-4 w-4 mr-2" />
+                            Save
+                          </>
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </>
+                )}
               </DialogContent>
             </Dialog>
             
-            <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
+            <Button variant="outline" onClick={handleDownloadPDF} disabled={downloading}>
+              {downloading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -164,7 +246,7 @@ const ResumeBuilder = () => {
                   <span className="hidden md:inline">Skills</span>
                 </TabsTrigger>
                 <TabsTrigger value="template" className="flex items-center">
-                  <FileText className="h-4 w-4 mr-2 md:hidden lg:block" />
+                  <FileCheck className="h-4 w-4 mr-2 md:hidden lg:block" />
                   <span className="hidden md:inline">Template</span>
                 </TabsTrigger>
               </TabsList>
@@ -230,7 +312,7 @@ const ResumeBuilder = () => {
                   <FileText className="h-5 w-5 mr-2 text-resume-primary" />
                   Resume Preview
                 </h2>
-                <div className="scale-[0.7] origin-top-left">
+                <div className="scale-[0.7] origin-top-left" ref={resumeRef}>
                   {renderTemplate()}
                 </div>
               </Card>
