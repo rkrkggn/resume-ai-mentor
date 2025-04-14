@@ -2,7 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { isAuthenticated, signOut, getCurrentUser } from "@/services/authService";
-import { FileText, User, LogOut } from "lucide-react";
+import { Rocket, User, LogOut } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -17,18 +17,18 @@ const Navbar = () => {
   return (
     <header className="border-b">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <FileText className="h-6 w-6 text-resume-primary" />
-          <span className="text-xl font-bold text-resume-text">ResumeAI</span>
+        <Link to="/" className="flex items-center space-x-3">
+          <Rocket className="h-7 w-7 text-primary" />
+          <span className="text-xl font-bold text-foreground">Resume Rocket</span>
         </Link>
         
         <nav className="flex items-center space-x-6">
-          <Link to="/" className="text-resume-text hover:text-resume-primary transition-colors">
+          <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
             Home
           </Link>
           
           {authenticated && (
-            <Link to="/dashboard" className="text-resume-text hover:text-resume-primary transition-colors">
+            <Link to="/dashboard" className="text-muted-foreground hover:text-primary transition-colors">
               Dashboard
             </Link>
           )}
@@ -36,7 +36,7 @@ const Navbar = () => {
           {authenticated ? (
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-resume-primary" />
+                <User className="h-5 w-5 text-primary" />
                 <span className="text-sm font-medium">{currentUser?.name}</span>
               </div>
               <Button
